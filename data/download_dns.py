@@ -34,20 +34,17 @@ def get_dns_from_file(url: str, dns_dict: dict):
     for line in content:
         # Decode line ( \t -> '    ').
         decoded_line = line.rstrip().decode()
-        if dns_index_founded is False:
+
+        if decoded_line[0] == '#':
             if 'field' in decoded_line:
                 if 'rtt' in decoded_line:
                     dns_index = 9
                 else:
                     dns_index = 8
-                dns_index_founded = True
-        else:
-            # We have already know 'dns_index' and we read data.
-            if decoded_line[0] == '#':
-                continue
+            continue
 
-            dns = decoded_line.split('	')[dns_index]
-            dns_dict[dns] = 1
+        dns = decoded_line.split('	')[dns_index]
+        dns_dict[dns] = 1
 
 
 def find_files(url: str):
@@ -90,15 +87,6 @@ def gel_all_dns(url: str):
                 print('Error: there is no dns.log probably.')
                 not_dns_log_list.append(capture_names[i])
 
-            # for j in range(len(content)):
-            #     if 'bro' in content[j]:
-            #         # We found bro folder.
-            #         try:
-            #             get_dns_from_file(url + capture_names[i] + content[j] + 'dns.log', dns_dict)
-            #         except ConnectionError:
-            #             print('Error: there is no dns.log probably.')
-            #             not_dns_log += 1
-            #         break
             print('     << dataset finished in {} seconds or {} minutes'.format((time() - time_cap), (time() - time_cap) / 60.0))
             # x += 1
             # if x > 6:
