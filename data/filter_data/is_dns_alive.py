@@ -74,7 +74,9 @@ def main(path, path_to_dataset):
         if is_alive:
             live_dns += 1
             new_dns_list.append(url)
-            download_html(url, path_to_dataset + '/' + str(live_dns) + '_' + url.replace('www.', ''))
+            # file_name = '{:04d}'.format(index) + '_url'
+            file_name = '{:04d}'.format(live_dns) + '_' + url.replace('www.', '')
+            download_html(url, path_to_dataset + '/' + file_name)
             print('{} {}    ==>     Connection was establihed. {}'.format(i, url, live_dns))
         else:
             print('{} {}    ==>     Connection was NOT establihed. {}'.format(i, url, live_dns))
