@@ -16,13 +16,15 @@ def read_alexa_top():
 
 
 def save_new_dns_output(dns_list):
-    with open('dns_file_output_filetr_1', 'w') as f:
+    with open('dns_file_output_filter_2', 'w') as f:
         for dns in dns_list:
             f.write('{}\n'.format(dns))
     f.close()
 
 
 def is_in_alexa_1000(dns, alexa_dns_dict):
+    if '.' not in dns:
+        return True
     for alexa_dns in alexa_dns_dict.keys():
         if alexa_dns in dns:
             if alexa_dns == dns:
@@ -44,7 +46,7 @@ def main(path_to_dns_file):
     index = 0
     i = 0
 
-    with open(path_to_dns_file + 'dns_file_output') as f:
+    with open(path_to_dns_file) as f:
         for line in f:
             dns = line.rstrip()
 
