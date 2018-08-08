@@ -28,19 +28,33 @@ def read_read_dns(path, dns_list):
 
 def download_html(url, html_name):
     # print('downloaded url: {}'.format(url))
+    is_html_ok = True
     try:
         html = urlopen('http://' + url).read().decode('utf-8')
     except:
         try:
             html = urlopen('http://' + url).read().decode("ISO-8859-1")
         except:
-            html = urlopen('http://' + url).read()
-            html_name += '_encoded'
+            try:
+                html = urlopen('http://' + url).read()
+                html_name += '_encoded'
+            except:
+                is_html_ok = False
+                html = ''
+                html_name = '_false'
 
-    # print(html)
-    with open(html_name, 'w') as f:
-        f.write(html)
-    f.close()
+    if is_html_ok:
+        # if is_html_ok:
+        with open(html_name + '.txt', 'w') as f:
+            f.write(html)
+        f.close()
+        return 0
+    else:
+        with open(html_name + '.txt', 'w') as f:
+            f.write('False\n' )
+            f.write('http://' + url + 'does not work\n' )
+        f.close()
+        return 1
 
 
 def check_dns_alive(url):
@@ -67,7 +81,7 @@ def main(path, path_to_dataset):
     new_dns_list = []
 
     t1 = time()
-
+    no_html = 0
     live_dns = 0
     for i, dns in enumerate(dns_list):
         is_alive, url = check_dns_alive(dns)
@@ -76,11 +90,11 @@ def main(path, path_to_dataset):
             new_dns_list.append(url)
             # file_name = '{:04d}'.format(index) + '_url'
             file_name = '{:04d}'.format(live_dns) + '_' + url.replace('www.', '')
-            download_html(url, path_to_dataset + '/' + file_name)
-            print('{} {}    ==>     Connection was establihed. {}'.format(i, url, live_dns))
+            no_html += download_html(url, path_to_dataset + '/' + file_name)
+            print('{} {}    ==>     Connection was establihed. Live:{}  No html:{}'.format(i, url, live_dns, no_html))
         else:
-            print('{} {}    ==>     Connection was NOT establihed. {}'.format(i, url, live_dns))
-        if live_dns > 5:
+            print('{} {}    ==>     Connection was NOT establihed. Live:{}  No html:{}'.format(i, url, live_dns, no_html))
+        if live_dns > 10:
             break
     save_new_dns_output(new_dns_list)
     print('Finished in {} hours'.format((time() - t1) / (60*60)))
