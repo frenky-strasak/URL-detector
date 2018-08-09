@@ -8,10 +8,11 @@ import urllib.request
 from urllib.request import urlopen
 import sys
 from time import time
+import os
 
 
-def save_new_dns_output(dns_list):
-    with open('new_dns_file_output_filter', 'w') as f:
+def save_new_dns_output(dns_list, out_path_to_alive_url_dataset):
+    with open(out_path_to_alive_url_dataset, 'w') as f:
         for dns in dns_list:
             f.write('{}\n'.format(dns))
     f.close()
@@ -35,13 +36,9 @@ def download_html(url, html_name):
         try:
             html = urlopen('http://' + url).read().decode("ISO-8859-1")
         except:
-            try:
-                html = urlopen('http://' + url).read()
-                html_name += '_encoded'
-            except:
-                is_html_ok = False
-                html = ''
-                html_name = '_false'
+            is_html_ok = False
+            html = ''
+            html_name = '_false'
 
     if is_html_ok:
         # if is_html_ok:
@@ -61,7 +58,6 @@ def check_dns_alive(url):
     # print(urllib.request.urlopen("http://google.com").getcode())
     if 'www.' not in url:
         url = 'www.' + url
-
     try:
         # returned_code = urllib.request.urlopen('http://' + 'www.google.com').getcode()
         returned_code = urllib.request.urlopen('http://' + url).getcode()
@@ -74,10 +70,17 @@ def check_dns_alive(url):
     return False, url
 
 
-def main(path, path_to_dataset):
+def main(in_path_to_url, out_path_to_html_dataset, out_path_to_alive_url_dataset, file_name):
+
+    # Create folder for html files.
+    if os.path.exists(out_path_to_html_dataset + '/' + file_name):
+        print('Error: Output folder for html files has already exist. Name url list is: {}'.format(file_name))
+        return
+    else:
+        os.makedirs(out_path_to_html_dataset + '/' + file_name)
 
     dns_list = []
-    read_read_dns(path, dns_list)
+    read_read_dns(in_path_to_url, dns_list)
     new_dns_list = []
 
     t1 = time()
@@ -89,19 +92,33 @@ def main(path, path_to_dataset):
             live_dns += 1
             new_dns_list.append(url)
             # file_name = '{:04d}'.format(index) + '_url'
-            file_name = '{:04d}'.format(live_dns) + '_' + url.replace('www.', '')
-            no_html += download_html(url, path_to_dataset + '/' + file_name)
+            file_html_name = '{:04d}'.format(live_dns) + '_' + url.replace('www.', '')
+            no_html += download_html(url, out_path_to_html_dataset + '/' + file_name + '/' + file_html_name)
             print('{} {}    ==>     Connection was establihed. Live:{}  No html:{}'.format(i, url, live_dns, no_html))
         else:
             print('{} {}    ==>     Connection was NOT establihed. Live:{}  No html:{}'.format(i, url, live_dns, no_html))
-        if live_dns > 10:
+        if live_dns > 7:
             break
-    save_new_dns_output(new_dns_list)
+    save_new_dns_output(new_dns_list, out_path_to_alive_url_dataset + '/' + file_name + '.txt')
     print('Finished in {} hours'.format((time() - t1) / (60*60)))
 
+
 if __name__ == '__main__':
-    if len(sys.argv) == 3:
-        main(sys.argv[1], sys.argv[2])
+    print('Welcome in checker dns.')
+    print('First arg: First argument is path to file where urls are stored')
+    print('Second arg: Second argument is path to folder where html folder should be saved. Html folder contains hmtl files.')
+    print('Third arg: Third argument is path to folder where alive url are saved.')
+    if len(sys.argv) == 4:
+        try:
+            file_name = os.path.basename(sys.argv[1])
+            file_name = str(file_name.split('_url')[0]) + '_html'
+            in_path_to_url = sys.argv[1]
+            out_path_to_html_dataset = sys.argv[2]
+            out_path_to_alive_url_dataset = sys.argv[3]
+            main(in_path_to_url, out_path_to_html_dataset, out_path_to_alive_url_dataset, file_name)
+        except:
+            print('Error: parsing name from path in first argument does not work. Put there right path to input file.')
     else:
-        print('Error: No arguments as paths. First argument is path to file where all url are stored. Secon argument is'
-              'path to folder, where html should be saved. List of live url is saved to same place like this script.')
+        print('Error: No arguments as paths. First argument is path to file where all url are stored. '
+              'Second argument is path to folder where html folder should be saved. Html folder contains hmtl files.'
+              '. Third argument is path to folder where alive url are saved.')
