@@ -97,8 +97,8 @@ def main(in_path_to_url, out_path_to_html_dataset, out_path_to_alive_url_dataset
             print('{} {}    ==>     Connection was establihed. Live:{}  No html:{}'.format(i, url, live_dns, no_html))
         else:
             print('{} {}    ==>     Connection was NOT establihed. Live:{}  No html:{}'.format(i, url, live_dns, no_html))
-        if live_dns > 7:
-            break
+        # if live_dns > 7:
+        #     break
     save_new_dns_output(new_dns_list, out_path_to_alive_url_dataset + '/' + file_name + '.txt')
     print('Finished in {} hours'.format((time() - t1) / (60*60)))
 
@@ -111,11 +111,19 @@ if __name__ == '__main__':
     if len(sys.argv) == 4:
         try:
             file_name = os.path.basename(sys.argv[1])
+
+            file_index = int(file_name.split('_url')[0])
             file_name = str(file_name.split('_url')[0]) + '_html'
             in_path_to_url = sys.argv[1]
             out_path_to_html_dataset = sys.argv[2]
             out_path_to_alive_url_dataset = sys.argv[3]
-            main(in_path_to_url, out_path_to_html_dataset, out_path_to_alive_url_dataset, file_name)
+            # main(in_path_to_url, out_path_to_html_dataset, out_path_to_alive_url_dataset, file_name)
+
+            main_t = time()
+            for i in range(file_index, file_index + 10):
+                file_name = '{:04d}'.format(i) + '_html'
+                main(in_path_to_url, out_path_to_html_dataset, out_path_to_alive_url_dataset, file_name)
+            print('All process takes {} hours'.format( (time() - main_t) / (60*60) ))
         except:
             print('Error: parsing name from path in first argument does not work. Put there right path to input file.')
     else:
