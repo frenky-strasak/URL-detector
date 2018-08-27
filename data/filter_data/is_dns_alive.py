@@ -10,7 +10,7 @@ from time import time
 import os
 
 
-def save_new_dns_output(dns_list, out_path_to_alive_url_dataset):
+def save_new_dns_output(dns_list: list, out_path_to_alive_url_dataset: str):
     with open(out_path_to_alive_url_dataset, 'w') as f:
         for dns in dns_list:
             f.write('{}\n'.format(dns))
@@ -21,7 +21,9 @@ def read_read_dns(path, dns_list):
     # Each line is one url.
     with open(path) as f:
         for line in f:
-            dns = line.rstrip()
+            dns = line.rstrip().lower()
+            if dns == '':
+                continue
             dns_list.append(dns)
     f.close()
 
@@ -39,7 +41,7 @@ def download_html(url, html_name, urlib_instant):
         except:
             is_html_ok = False
             html = ''
-            html_name = '_false'
+            html_name += '_false'
 
     if is_html_ok:
         # if is_html_ok:
@@ -62,7 +64,7 @@ def check_dns_alive(url):
     try:
         # returned_code = urllib.request.urlopen('http://' + 'www.google.com').getcode()
         # returned_code = urllib.request.urlopen('http://' + url, timeout=10).getcode()
-        urlib_instant = urllib.request.urlopen('http://' + url, timeout=10)
+        urlib_instant = urllib.request.urlopen('http://' + url, timeout=5)
         returned_code = urlib_instant.getcode()
     except:
         return False, url, None
@@ -93,15 +95,13 @@ def main(index, in_path_to_url, out_path_to_html_dataset, out_path_to_alive_url_
         if is_alive:
             live_dns += 1
             new_dns_list.append(url)
-            # file_name = '{:04d}'.format(index) + '_url'
             file_html_name = '{:04d}'.format(live_dns) + '_' + url.replace('www.', '')
             spec_out_path_to_html_dataset = out_path_to_html_dataset + '/' + file_name + '/' + file_html_name
             no_html += download_html(url, spec_out_path_to_html_dataset, urlib_instant)
             print('<{}> {} {}    ==>     Connection was establihed. Live:{}  No html:{}'.format(index, i, url, live_dns, no_html))
         else:
             print('<{}> {} {}    ==>     Connection was NOT establihed. Live:{}  No html:{}'.format(index, i, url, live_dns, no_html))
-        # if live_dns > 7:
-        #     break
+
     save_new_dns_output(new_dns_list, out_path_to_alive_url_dataset + '/' + file_name + '.txt')
     print('Finished in {} hours'.format((time() - t1) / (60*60)))
     return 0
@@ -109,29 +109,30 @@ def main(index, in_path_to_url, out_path_to_html_dataset, out_path_to_alive_url_
 
 if __name__ == '__main__':
     print('Welcome in checker dns.')
-    print('First arg: First argument is path to file where urls are stored')
-    print('Second arg: Second argument is path to folder where html folder should be saved. Html folder contains hmtl files.')
-    print('Third arg: Third argument is path to folder where alive url are saved.')
+    print('First arg: First argument is path to FILE where urls are stored. If you want to process more files, put'
+          'integer to loop in code.')
+    print('Second arg: Second argument is path to FOLDER where html folders should be saved. Html folder will contain hmtl files.')
+    print('Third arg: Third argument is path to FOLDER where alive url are saved.')
     if len(sys.argv) == 4:
-        try:
-            file_name = os.path.basename(sys.argv[1])
 
-            file_index = int(file_name.split('_url')[0])
-            file_name = str(file_name.split('_url')[0]) + '_html'
-            in_path_to_url = sys.argv[1]
-            out_path_to_html_dataset = sys.argv[2]
-            out_path_to_alive_url_dataset = sys.argv[3]
-            # main(in_path_to_url, out_path_to_html_dataset, out_path_to_alive_url_dataset, file_name)
+        orig_file_name = os.path.basename(sys.argv[1])
 
-            main_t = time()
-            for i in range(file_index, file_index + 10):
-                file_name = '{:04d}'.format(i) + '_html'
-                err_stat = main(i, in_path_to_url, out_path_to_html_dataset, out_path_to_alive_url_dataset, file_name)
-                if err_stat == -1:
-                    break
-            print('All process takes {} hours'.format( (time() - main_t) / (60*60) ))
-        except:
-            print('Error: parsing name from path in first argument does not work. Put there right path to input file.')
+        file_index = int(orig_file_name.split('_url')[0])
+        file_name = str(orig_file_name.split('_url')[0]) + '_html'
+        in_path_to_url = sys.argv[1]
+        path_to_url_folder = os.path.dirname(in_path_to_url)
+        out_path_to_html_dataset = sys.argv[2]
+        out_path_to_alive_url_dataset = sys.argv[3]
+        # main(in_path_to_url, out_path_to_html_dataset, out_path_to_alive_url_dataset, file_name)
+
+        main_t = time()
+        for i in range(file_index, file_index + 5):
+            new_file_name = '{:04d}'.format(i) + '_html'
+            path_to_url_name = path_to_url_folder + '/' + '{:04d}'.format(i) + '_url'
+            err_stat = main(i + 1, path_to_url_name, out_path_to_html_dataset, out_path_to_alive_url_dataset, new_file_name)
+            if err_stat == -1:
+                break
+        print('All process takes {} hours'.format((time() - main_t) / (60*60) ))
     else:
         print('Error: No arguments as paths. First argument is path to file where all url are stored. '
               'Second argument is path to folder where html folder should be saved. Html folder contains html files.'
