@@ -41,7 +41,6 @@ def read_files(path: str, data_dict: dict, start_file: str, end_file: str) -> bo
     is_read = False
     start_index = int(start_file.replace('_html.txt', ''))
     end_index = int(end_file.replace('_html.txt', ''))
-    files = [f for f in os.listdir(path) if os.path.isfile(f)]
     for file in os.listdir(path):
         file_index = int(file.replace('_html.txt', ''))
         if start_index <= file_index <= end_index:
@@ -159,35 +158,37 @@ def main(api_key: str, path_to_folder: str, save_path: str) -> None:
         for url in d.keys():
             index += 1
 
-    #         response_code, error_code, positives, total_anti, post_url_to_connect, anti_list = get_virus_total_status(url, api_key)
-    #         if error_code == 0:
-    #             if positives > 0:
-    #                 data_dict[html_file][url] = (url, str(positives), str(total_anti), '1', anti_list)
-    #         elif error_code == 1:
-    #             post_url.append((html_file, url, post_url_to_connect))
-    #         else:
-    #             unknown_reponse += 1
-    #         print('{}   response: {}   error_code: {}'.format(url, response_code, error_code))
-    #         # sleep(0.05)
-    #
-    # print(' * We are starting to process url that was posted.')
-    # sleep(10)
-    # # Process urls that we had to wait until virus total process them.
-    # for item in post_url:
-    #     html_file, url, post_url_to_connect = item
-    #     response_code, error_code, positives, total_anti, post_url_to_connect, anti_list = get_virus_total_status(url, api_key)
-    #     if error_code == 0:
-    #         if positives > 0:
-    #             data_dict[html_file][url] = (url, str(positives), str(total_anti), '1', anti_list)
-    #     else:
-    #         data_dict[html_file][url] = False
-    #         still_waiting_response += 1
-    #
-    # write_output(save_path, data_dict, still_waiting_response)
-    #
-    # print('Number of unknown_reponse: {}'.format(unknown_reponse))
-    # print('Number of still waiting response: {}'.format(still_waiting_response))
-    print('index: {}'.format(index))
+            response_code, error_code, positives, total_anti, post_url_to_connect, anti_list = get_virus_total_status(url, api_key)
+            if error_code == 0:
+                if positives > 0:
+                    data_dict[html_file][url] = (url, str(positives), str(total_anti), '1', anti_list)
+            elif error_code == 1:
+                post_url.append((html_file, url, post_url_to_connect))
+            else:
+                unknown_reponse += 1
+            print('{}       {}   response: {}   error_code: {}'.format(index, url, response_code, error_code))
+            # sleep(0.05)
+
+    posted_url = len(post_url)
+    print(' * We are starting to process url that was posted: {}'.format(posted_url))
+    sleep(10)
+    # Process urls that we had to wait until virus total process them.
+    for item in post_url:
+        html_file, url, post_url_to_connect = item
+        response_code, error_code, positives, total_anti, post_url_to_connect, anti_list = get_virus_total_status(url, api_key)
+        if error_code == 0:
+            if positives > 0:
+                data_dict[html_file][url] = (url, str(positives), str(total_anti), '1', anti_list)
+        else:
+            data_dict[html_file][url] = False
+            still_waiting_response += 1
+
+    write_output(save_path, data_dict, still_waiting_response)
+
+    print('Number of unknown_reponse: {}'.format(unknown_reponse))
+    print('Urls to posted: {}'.format(posted_url))
+    print('Number of still waiting response (not finished yet): {}'.format(still_waiting_response))
+    print('All requested url: {}'.format(index))
 
 if __name__ == '__main__':
     """

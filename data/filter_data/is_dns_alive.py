@@ -129,7 +129,7 @@ if __name__ == '__main__':
         for i in range(file_index, file_index + 5):
             new_file_name = '{:04d}'.format(i) + '_html'
             path_to_url_name = path_to_url_folder + '/' + '{:04d}'.format(i) + '_url'
-            err_stat = main(i + 1, path_to_url_name, out_path_to_html_dataset, out_path_to_alive_url_dataset, new_file_name)
+            err_stat = main(i, path_to_url_name, out_path_to_html_dataset, out_path_to_alive_url_dataset, new_file_name)
             if err_stat == -1:
                 break
         print('All process takes {} hours'.format((time() - main_t) / (60*60) ))
