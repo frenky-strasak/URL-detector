@@ -88,9 +88,9 @@ def get_virus_total_status(url_to_scan: str, api_key: str) -> tuple:
 
     if response_code == 1:
         """
-        As we tried there are 2 options:
+        As we tried there are 2 options with reponse code == 1:
         1. We get data
-        2. We have to ask again (wait few seconds (it works after ~2 seconds))
+        2. We have to ask again (wait few seconds (it works after ~2 seconds)). It seems to similar to response code 0.
         """
         try:
             verbose_msg = dict_response['verbose_msg']
@@ -106,7 +106,7 @@ def get_virus_total_status(url_to_scan: str, api_key: str) -> tuple:
                 return response_code, 2, 0, 0, '', []
         except KeyError as e:
             print('Error: We got response_code 1 however there is no key: {}'.format(e))
-            sys.exit(1)
+            # sys.exit(1)
 
     elif response_code == 0:
         """
@@ -117,7 +117,7 @@ def get_virus_total_status(url_to_scan: str, api_key: str) -> tuple:
             url_to_return = dict_response['permalink']
         except KeyError as e:
             print('Error: We got response_code 0 however there is no key: {}'.format(e))
-            sys.exit(1)
+            # sys.exit(1)
         return response_code, 1, 0, 0, url_to_return, []
     elif response_code == -2:
         """
@@ -127,12 +127,12 @@ def get_virus_total_status(url_to_scan: str, api_key: str) -> tuple:
             url_to_return = dict_response['permalink']
         except KeyError as e:
             print('Error: We got response_code -2 however there is no key: {}'.format(e))
-            sys.exit(1)
+            # sys.exit(1)
         return response_code, 1, 0, 0, url_to_return, []
     else:
         print('Error: we do not know this response_code: {}'.format(response_code))
-        sys.exit(1)
-
+        # sys.exit(1)
+        return response_code, 2, 0, 0, None, []
 
 def main(api_key: str, path_to_folder: str, save_path: str) -> None:
     # Keep names of files and their captures.
@@ -166,7 +166,7 @@ def main(api_key: str, path_to_folder: str, save_path: str) -> None:
                 post_url.append((html_file, url, post_url_to_connect))
             else:
                 unknown_reponse += 1
-            print('{}       {}   response: {}   error_code: {}'.format(index, url, response_code, error_code))
+            print('{:<25}       {:<25}   response: {:<25}   error_code: {}'.format(index, url, response_code, error_code))
             # sleep(0.05)
 
     posted_url = len(post_url)
