@@ -15,7 +15,7 @@ sep = '\x09'
 def write_output(path: str, data_dict: dict, still_waiting_response: int) -> None:
     for html_file, d in data_dict.items():
         new_name = html_file.replace('.txt', '')
-        with open(path + new_name + '_labeled.txt', 'w') as f:
+        with open(path + '/' + new_name + '_labeled.txt', 'w') as f:
             f.write('# Dataset of url. Part of URL-Detector project. '
                     'In case of next information contact: strasfra_fel.cvut.cz\n')
             f.write('# separator: <backslash>x09\n')
@@ -34,13 +34,27 @@ def write_output(path: str, data_dict: dict, still_waiting_response: int) -> Non
         f.close()
 
 
-def read_files(path: str, data_dict: dict, start_file: str, end_file: str) -> bool:
+def check_existing_labeled(out_path: str, start_file: str, end_file: str) -> bool:
+    """
+    Check if files for labeling are not already labeled.
+    """
+    start_index = int(start_file.replace('_html.txt', ''))
+    end_index = int(end_file.replace('_html.txt', ''))
+    for file in os.listdir(out_path):
+        file_index = int(file.replace('_html_labeled.txt', ''))
+        if start_index <= file_index <= end_index:
+            print('Error: This file {} is already labeled. Check your range of number of files.'.format(file))
+            return False
+    return True
+
+
+def read_files(path: str, data_dict: dict, start_file: str, end_file: str) -> int:
     """
     Read all files in folder.
     """
-    is_read = False
     start_index = int(start_file.replace('_html.txt', ''))
     end_index = int(end_file.replace('_html.txt', ''))
+    total_urls = 0
     for file in os.listdir(path):
         file_index = int(file.replace('_html.txt', ''))
         if start_index <= file_index <= end_index:
@@ -51,15 +65,14 @@ def read_files(path: str, data_dict: dict, start_file: str, end_file: str) -> bo
                     if line == '' or line[0] == '#':
                         continue
                     data_dict[file][line.rstrip().lower()] = ''
-                    is_read = True
                     try:
                         d[line.rstrip().lower()] += 1
                     except:
                         d[line.rstrip().lower()] = 1
             f.close()
             print(' <<<< {} Info: We have {} urls.'.format(file, len(d.keys())))
-    return is_read
-
+            total_urls += len(d.keys())
+    return total_urls
 
 def request_to_virus_total(url_to_scan: str, api_key: str) -> dict:
     params = {'apikey': api_key, 'resource': url_to_scan,
@@ -134,6 +147,7 @@ def get_virus_total_status(url_to_scan: str, api_key: str) -> tuple:
         # sys.exit(1)
         return response_code, 2, 0, 0, None, []
 
+
 def main(api_key: str, path_to_folder: str, save_path: str) -> None:
     # Keep names of files and their captures.
     data_dict = {}
@@ -141,32 +155,39 @@ def main(api_key: str, path_to_folder: str, save_path: str) -> None:
     post_url = []
     unknown_reponse = 0
     still_waiting_response = 0
+
+    ##########################################
     """
     Say which files you want to process.
     """
-    first_file = '0001_html.txt'
-    last_file = '0001_html.txt'
-    is_read = read_files(path_to_folder, data_dict, first_file, last_file)
-    if is_read is False:
-        print('Error: Nothing to read.')
+    first_file = '0023_html.txt'
+    last_file = '0023_html.txt'
+    ###########################################
+
+    if check_existing_labeled(save_path, first_file, last_file) is False:
         return
+    total_urls = read_files(path_to_folder, data_dict, first_file, last_file)
     print('We are going to process these files: from {} to {}'.format(first_file, last_file))
+    print('Total amount of url for requesting virus total is: {}'.format(total_urls))
+    input("Press Enter to continue... ")
     index = 0
-    d = {}
+    positive_index = 0
+    start_t = time()
     for html_file, d in data_dict.items():
-        print('     << {}'.format(html_file))
+        print('<< {}'.format(html_file))
         for url in d.keys():
             index += 1
-
+            # print(url)
             response_code, error_code, positives, total_anti, post_url_to_connect, anti_list = get_virus_total_status(url, api_key)
             if error_code == 0:
                 if positives > 0:
                     data_dict[html_file][url] = (url, str(positives), str(total_anti), '1', anti_list)
+                    positive_index += 1
             elif error_code == 1:
                 post_url.append((html_file, url, post_url_to_connect))
             else:
                 unknown_reponse += 1
-            print('{:<25}       {:<25}   response: {:<25}   error_code: {}'.format(index, url, response_code, error_code))
+            print('     <<< {}/{:<15}       {:<40}   response: {:<25}   error_code: {}'.format(index, total_urls, url, response_code, error_code))
             # sleep(0.05)
 
     posted_url = len(post_url)
@@ -179,16 +200,19 @@ def main(api_key: str, path_to_folder: str, save_path: str) -> None:
         if error_code == 0:
             if positives > 0:
                 data_dict[html_file][url] = (url, str(positives), str(total_anti), '1', anti_list)
+                positive_index += 1
         else:
             data_dict[html_file][url] = False
             still_waiting_response += 1
 
     write_output(save_path, data_dict, still_waiting_response)
 
+    print('\n##############################################')
     print('Number of unknown_reponse: {}'.format(unknown_reponse))
     print('Urls to posted: {}'.format(posted_url))
     print('Number of still waiting response (not finished yet): {}'.format(still_waiting_response))
-    print('All requested url: {}'.format(index))
+    print('All requested url: {} / {}'.format(index, positive_index))
+    print('Total time: {} hours'.format((time() - start_t) / 3600.0))
 
 if __name__ == '__main__':
     """
@@ -197,6 +221,10 @@ if __name__ == '__main__':
     2. path to folder where url files are.
     3. path to folder where labeled url files should be saved.
     """
+    print('Welcome in virus total script. This script is for requesting url. The first argument is virus total API key.'
+          'Second argument is path to FOLDER where input files with url are. Third argument is path to FOLDER where '
+          'to store labeled urls in files. Also you have to specify which files you have to label in the source code.')
+    print('#################################\n\n')
     if len(sys.argv) == 4:
         api_key = sys.argv[1]
         path_to_folder = sys.argv[2]
