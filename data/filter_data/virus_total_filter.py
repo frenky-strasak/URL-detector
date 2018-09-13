@@ -1,3 +1,9 @@
+"""
+This script is for labeling url by virus total. You need virus total API KEY and list urls to label.
+You can choose if you wan to label normal url or malware url. The different is that for normal labeling it creates
+file_labeled with only normal url. Same way for malware labeling.
+"""
+
 import requests
 import sys
 import os
@@ -21,15 +27,20 @@ def write_output(path: str, data_dict: dict, still_waiting_response: int) -> Non
             f.write('# separator: <backslash>x09\n')
             f.write('# number of waiting urls for virus total: {}\n'.format(still_waiting_response))
             f.write('# Fields: url, positives, antivirus_number, label, antivirus_names\n')
+
+            # Labeling malware.
             for key, tuple in d.items():
                 if tuple == '':
+                    # normal url.
                     continue
                 elif tuple is not False:
+                    # url is malware.
                     text = ''
                     text += tuple[0] + sep + tuple[1] + sep + tuple[2] + sep + tuple[3] + sep
                     text += '[' + ','.join(tuple[4]) + ']'
                     f.write(text + '\n')
                 elif tuple is False:
+                    # We are waiting for but we can not more.
                     f.write(key + ',waiting_for_post')
         f.close()
 
@@ -73,6 +84,7 @@ def read_files(path: str, data_dict: dict, start_file: str, end_file: str) -> in
             print(' <<<< {} Info: We have {} urls.'.format(file, len(d.keys())))
             total_urls += len(d.keys())
     return total_urls
+
 
 def request_to_virus_total(url_to_scan: str, api_key: str) -> dict:
     params = {'apikey': api_key, 'resource': url_to_scan,
@@ -160,8 +172,8 @@ def main(api_key: str, path_to_folder: str, save_path: str) -> None:
     """
     Say which files you want to process.
     """
-    first_file = '0023_html.txt'
-    last_file = '0023_html.txt'
+    first_file = '0004_html.txt'
+    last_file = '0004_html.txt'
     ###########################################
 
     if check_existing_labeled(save_path, first_file, last_file) is False:
@@ -220,6 +232,8 @@ if __name__ == '__main__':
     1. api key to virus total.
     2. path to folder where url files are.
     3. path to folder where labeled url files should be saved.
+    4. Choose if you want to label normal or malware. It creates labeled file, where normal/malware will be. The 
+       argument is bool (False, True).  True -> normal labeling, False - malware labeling.
     """
     print('Welcome in virus total script. This script is for requesting url. The first argument is virus total API key.'
           'Second argument is path to FOLDER where input files with url are. Third argument is path to FOLDER where '

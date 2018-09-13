@@ -98,9 +98,9 @@ def main(index, in_path_to_url, out_path_to_html_dataset, out_path_to_alive_url_
             file_html_name = '{:04d}'.format(live_dns) + '_' + url.replace('www.', '')
             spec_out_path_to_html_dataset = out_path_to_html_dataset + '/' + file_name + '/' + file_html_name
             no_html += download_html(url, spec_out_path_to_html_dataset, urlib_instant)
-            print('<{:<5}> {:<5} {:<30}    ==>     Connection was establihed. Live:{}  No html:{}'.format(index, i, url, live_dns, no_html))
+            print('<{}> {:<5} {:<40}    ==>     Connection was establihed. Live:{}  No html:{}'.format(index, i, url, live_dns, no_html))
         else:
-            print('<{:<5}> {:<5} {:<30}    ==>     Connection was NOT establihed. Live:{}  No html:{}'.format(index, i, url, live_dns, no_html))
+            print('<{}> {:<5} {:<40}    ==>     Connection was NOT establihed. Live:{}  No html:{}'.format(index, i, url, live_dns, no_html))
 
     save_new_dns_output(new_dns_list, out_path_to_alive_url_dataset + '/' + file_name + '.txt')
     print('Finished in {} hours'.format((time() - t1) / (60*60)))
@@ -126,7 +126,7 @@ if __name__ == '__main__':
         # main(in_path_to_url, out_path_to_html_dataset, out_path_to_alive_url_dataset, file_name)
 
         main_t = time()
-        for i in range(file_index, file_index + 72):
+        for i in range(file_index, file_index + 1):
             new_file_name = '{:04d}'.format(i) + '_html'
             path_to_url_name = path_to_url_folder + '/' + '{:04d}'.format(i) + '_url'
             err_stat = main(i, path_to_url_name, out_path_to_html_dataset, out_path_to_alive_url_dataset, new_file_name)

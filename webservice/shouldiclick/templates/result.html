@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<title>URL detector</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<style>
+body,h1 {font-family: "Raleway", sans-serif}
+body, html {height: 100%}
+.bgimg {
+    /*background-image: url('https://www.w3schools.com/w3images/forestbridge.jpg');*/
+    min-height: 100%;
+    background-position: center;
+    background-size: cover;
+    background-color: black;
+}
+</style>
+<body>
+
+<div class="bgimg w3-display-container w3-animate-opacity w3-text-white">
+  <div class="w3-display-topleft w3-padding-large w3-xlarge">
+    Logo
+  </div>
+  <div class="w3-display-middle w3-center">
+
+      {% if decision == 0 %}
+            <h1 class="w3-jumbo w3-animate-top">{{url}}</h1>
+            <h1 class="w3-jumbo w3-animate-top">is normal website</h1>
+            <style> .bgimg { background-color: green;} </style>
+      {% elif decision == 1 %}
+            <!--<p>URL is malicious.</p>-->
+            <h1 class="w3-jumbo w3-animate-top">{{url}}</h1>
+            <h1 class="w3-jumbo w3-animate-top">is malicious website</h1>
+            <style> .bgimg { background-color: red;} </style>
+            <p>Be careful! This website is detected as malicious.</p>
+            <p>Continue to analyze with <a href="https://www.virustotal.com/#/home/upload">www.virustotal.com</a> </p>
+      {% elif decision == 2 %}
+            <h1 class="w3-jumbo w3-animate-top">{{url}}</h1>
+            <h1 class="w3-jumbo w3-animate-top">is not valid url</h1>
+            <style> .bgimg { background-color: grey;} </style>
+            <p>Check your url and try again!</p>
+      {% endif %}
+
+
+      <form action="/">
+          <button type="submit" class="w3-btn w3-dark-grey w3-round-xlarge w3-xxlarge" value="?">Next scan</button>
+      </form>
+      <!--<h1 class="w3-jumbo w3-animate-top">Should i click or not?</h1>-->
+
+      <!--<hr class="w3-border-grey" style="margin:auto;width:40%">-->
+      <!--<p class="w3-large w3-center">Should i click is URL detector web service based on Machine learning research.-->
+      <!--sdfsdfs odfko skoskd fo ksdof kpsod fkpo osdfsdf sdofsdf</p>-->
+
+      <!--<input class="w3-input" type="text" style="text-align:center;">-->
+      <!--<p></p>-->
+      <!--<form action="/">-->
+          <!--<button type="submit" class="w3-btn w3-dark-grey w3-round-xlarge w3-xxlarge" value="?url=karel">Scan</button>-->
+      <!--</form>-->
+      <!--<p class="w3-large w3-center">About</p>-->
+  </div>
+  <div class="w3-display-bottomleft w3-padding-large">
+        Powered by <a href="https://www.w3schools.com/w3css/default.asp" target="_blank">w3.css</a>
+    </div>
+    <div class="w3-display-bottomright w3-padding-large">
+        Authors: Frenky Střasák, Sebastian Garcia
+    </div>
+
+    <div class="w3-display-bottommiddle w3-padding-large">
+       <p> This is the development version - decisions are randomly taken.</p>
+    </div>
+</div>
+
+</body>
+</html>

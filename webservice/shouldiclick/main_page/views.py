@@ -1,0 +1,31 @@
+
+
+
+# import os,sys,inspect
+# currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+# parentdir = os.path.dirname(currentdir)
+# sys.path.insert(0,parentdir)
+#
+# import detection_manager
+
+import sys
+sys.path.insert(0, '/home/frenky/PycharmProjects/url_detector/URL-detector/')
+# sys.path.insert(0, '/')
+
+from manager import detection_manager
+from django.shortcuts import render
+
+
+# if request.method == "POST":
+
+
+# Create your views here.
+def index(request: object):
+    url_requested = request.GET.get('url', -1)
+    if url_requested != -1:
+        decision = detection_manager.get_decicion('temp_url')
+        temp_list = ['karel', 'lokomotiva']
+        return render(request, 'result.html', {'decision': decision, 'url': url_requested})
+    else:
+        return render(request, 'home.html')
+    # return HttpResponse('ahoj more bohumila {}'.format(info))

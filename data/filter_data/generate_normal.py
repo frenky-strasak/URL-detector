@@ -1,13 +1,13 @@
+"""
+Generate dataset from alexa 1000,000.
+"""
+
 
 import sys
 import pandas as pd
 import csv
 from tld import get_tld
 
-
-"""
-1082669 - 1082613
-"""
 
 def write(url_list: list) -> None:
     save_path = '/home/frenky/Documents/Skola/Stratosphere_url_detector/data/normal/filtered_and_splited/'

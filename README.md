@@ -1,5 +1,5 @@
 # URL-detector
-URL-detector is tool for detection malicious url (Uniform Resource Locator).
+URL-detector is tool for detection malicious URL (Uniform Resource Locator).
 
 Contact:
-Frantisek Strasak
+Frantisek Strasak, strasfra@fel.cvut.cz
