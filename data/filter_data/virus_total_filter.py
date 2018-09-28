@@ -172,8 +172,8 @@ def main(api_key: str, path_to_folder: str, save_path: str) -> None:
     """
     Say which files you want to process.
     """
-    first_file = '0004_html.txt'
-    last_file = '0004_html.txt'
+    first_file = '0013_html.txt'
+    last_file = '0013_html.txt'
     ###########################################
 
     if check_existing_labeled(save_path, first_file, last_file) is False:

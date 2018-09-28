@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<title>URL detector</title>
+<title>Should I click?</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
@@ -20,7 +20,14 @@ body, html {height: 100%}
 
 <div class="bgimg w3-display-container w3-animate-opacity w3-text-white">
   <div class="w3-display-topleft w3-padding-large w3-xlarge">
-    Logo
+      <div >
+               <p>
+                   <a href="https://www.civilsphereproject.org/"> <img src="/media/civilsphere.png" alt="Italian Trulli" width="5%" height="5%"> </a>
+               </p>
+                 </p>
+                <a href="http://aic.fel.cvut.cz/"> <img src="/media/aic-logo.png" alt="Italian Trulli" width="10%" height="10%"> </a>
+               </p>
+            </div>
   </div>
   <div class="w3-display-middle w3-center">
 
@@ -40,12 +47,23 @@ body, html {height: 100%}
             <h1 class="w3-jumbo w3-animate-top">is not valid url</h1>
             <style> .bgimg { background-color: grey;} </style>
             <p>Check your url and try again!</p>
+       {% elif decision == -1 %}
+            <h1 class="w3-jumbo w3-animate-top">{{url}}</h1>
+            <h1 class="w3-jumbo w3-animate-top">Error</h1>
+            <style> .bgimg { background-color: grey;} </style>
+            <p>Sorry, something wrong happened. Try again.</p>
+      {% elif decision == 3 %}
+            <h1 class="w3-jumbo w3-animate-top">{{url}}</h1>
+            <h1 class="w3-jumbo w3-animate-top">No data available</h1>
+            <style> .bgimg { background-color: grey;} </style>
+            <p>We can not access server data. Wait few seconds and try again.</p>
       {% endif %}
 
 
       <form action="/">
           <button type="submit" class="w3-btn w3-dark-grey w3-round-xlarge w3-xxlarge" value="?">Next scan</button>
       </form>
+
       <!--<h1 class="w3-jumbo w3-animate-top">Should i click or not?</h1>-->
 
       <!--<hr class="w3-border-grey" style="margin:auto;width:40%">-->
@@ -67,7 +85,7 @@ body, html {height: 100%}
     </div>
 
     <div class="w3-display-bottommiddle w3-padding-large">
-       <p> This is the development version - decisions are randomly taken.</p>
+       <p> version 1.0 - still in development stage</p>
     </div>
 </div>
 

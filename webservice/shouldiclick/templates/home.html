@@ -1,6 +1,64 @@
 <!DOCTYPE html>
 <html>
-<title>URL detector</title>
+<head>
+<style>
+/* Center the loader */
+#loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 150px;
+  height: 150px;
+  margin: -75px 0 0 -75px;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Add animation to "page content" */
+.animate-bottom {
+  position: relative;
+  -webkit-animation-name: animatebottom;
+  -webkit-animation-duration: 1s;
+  animation-name: animatebottom;
+  animation-duration: 1s
+}
+
+@-webkit-keyframes animatebottom {
+  from { bottom:-100px; opacity:0 }
+  to { bottom:0px; opacity:1 }
+}
+
+@keyframes animatebottom {
+  from{ bottom:-100px; opacity:0 }
+  to{ bottom:0; opacity:1 }
+}
+
+#myDiv {
+  display: none;
+  text-align: center;
+}
+
+
+
+</style>
+</head>
+<title>Should I click?</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
@@ -15,36 +73,71 @@ body, html {height: 100%}
     background-size: cover;
     background-color: black;
 }
+
 </style>
-<body>
+
+
+
+<body onload="showPage()">
 
 <div class="bgimg w3-display-container w3-animate-opacity w3-text-white">
   <div class="w3-display-topleft w3-padding-large w3-xlarge">
-    Logo
+
+            <div >
+
+               <p>
+                   <a href="https://www.civilsphereproject.org/"> <img src="/media/civilsphere.png" alt="Italian Trulli" width="5%" height="5%"> </a>
+               </p>
+                 </p>
+                <a href="http://aic.fel.cvut.cz/"> <img src="/media/aic-logo.png" alt="Italian Trulli" width="10%" height="10%"> </a>
+               </p>
+            </div>
+
   </div>
-  <div class="w3-display-middle w3-center">
-      <h1 class="w3-jumbo w3-animate-top">Should i click or not?</h1>
+  <div id="main_div" class="w3-display-middle w3-center">
+      <h1 class="w3-jumbo w3-animate-top">Should I click or not?</h1>
 
       <hr class="w3-border-grey" style="margin:auto;width:40%">
       <p class="w3-large w3-center">
-          Should i click is webpage detector based on machine learning research. The output of this project is
-          recommendation whether the webpage is malicious or normal.
-
+         www.shouldiclick.org tells you if you should click or not in a link due to security concerns. We used security-based
+machine learning research to find if all the information and content of a webpage is safe to click.
+The output of this service is a recommendation for you whether you should click on this link or not.
+You should had received this link with the intention of clicking on it.
       </p>
+
+      <p>Examples:</p>
+      <p>www.google.com, youtube.com, https://translate.google.cz/#cs/es/shouldiclick%3F</p>
 
 
 
       <form onSubmit="return checkAnswer();">
-          <input id="url_answer" class="w3-input" type="text" style="text-align:center;">
+          <input id="url_answer" class="w3-input"  type="text" style="text-align:center;">
           <p></p>
 
-            <button  type="submit" class="w3-btn w3-dark-grey w3-round-xlarge w3-xxlarge" >Scan</button>
+            <button id="main_button" type="submit" class="w3-btn w3-dark-grey w3-round-xlarge w3-xxlarge" >Scan</button>
        </form>
   </div>
 
+
+    <div id="loader" ></div>
+
+
+
+
+
     <script>
 
+        function showPage() {
+            document.getElementById("loader").style.display = "none";
+        }
+
+        function myFunction() {
+            document.getElementById("loader").style.display = "inline";
+            document.getElementById("main_div").style.display = "none";
+        }
+
         function checkAnswer(){
+            myFunction()
             var response = document.getElementById('url_answer').value;
             if (response != "")
                 window.location = '/?url=' + response;
@@ -52,6 +145,7 @@ body, html {height: 100%}
                 window.location = ''
             return false;
         }
+
     </script>
 
 
@@ -63,7 +157,7 @@ body, html {height: 100%}
     </div>
 
     <div class="w3-display-bottommiddle w3-padding-large">
-       <p> This is the development version - decisions are randomly taken.</p>
+       <p> version 1.0 - still in development stage</p>
     </div>
 </div>
 

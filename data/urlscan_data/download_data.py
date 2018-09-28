@@ -20,10 +20,17 @@ def read_data(path_to_url_file: str, url_list: list) -> None:
                 continue
             splited = line.rstrip().split(sep)
             url = splited[0].lower()
-            url = url.replace('www.', '')
+            # url = url.replace('www.', '')
             url_list.append(url)
     f.close()
 
+
+def connect(headers: dict, data: str) -> tuple:
+    try:
+        response = requests.post('https://urlscan.io/api/v1/scan/', headers=headers, data=data)
+        return True, response
+    except:
+        return False, ''
 
 def ask_for_uuid(url: str, api_key: str) -> str:
     headers = {
@@ -31,9 +38,31 @@ def ask_for_uuid(url: str, api_key: str) -> str:
         'API-Key': api_key,
     }
     data = '{"url": "' + url + '", "public": "on"}'
-    response = requests.post('https://urlscan.io/api/v1/scan/', headers=headers, data=data)
+
+    response = ''
+    dead = 0
+    is_connect = False
+    while dead < 10:
+        succ, response = connect(headers, data)
+        if succ:
+            is_connect = True
+            break
+        dead += 1
+        sleep(5)
+        print('         <<< Repeating connection...')
+
+    if is_connect is False:
+        print('Error: We have problems to connect to urlscan. Check your connection. Terminating.')
+        sys.exit(1)
+
+    # response = requests.post('https://urlscan.io/api/v1/scan/', headers=headers, data=data)
     print(response)
-    res_dict = dict(response.json())
+    try:
+        res_dict = dict(response.json())
+    except:
+        uuid = None
+        print(response.text)
+        return uuid
     try:
         uuid = res_dict['uuid']
     except KeyError:
@@ -43,13 +72,22 @@ def ask_for_uuid(url: str, api_key: str) -> str:
 
 
 def data_ready(json: dict) -> bool:
+    """
+    If it is not ready: "status": 404
+    If it is ready: (not key "status")
+    """
     try:
-        mess = json['message']
-        if mess == 'notdone':
+        #
+        status = json['status']
+        status_int = status
+        if status_int == 404:
             return False
         else:
-            return True
+            return False
     except:
+        """
+        There is no key "status", so it is ok.
+        """
         return True
 
 
@@ -91,34 +129,35 @@ def download_one_json(uuid: str, save_path: str,) -> bool:
 def download_stuff(uuid_dict: dict, error_url_dict: dict, error_url_get: dict, save_path: str, depth: int, file_index: int) -> None:
     """Download data from urlscan."""
     print(' << We are in depth {}'.format(depth))
-    if depth > 2:
+    _threshold = 20
+    if depth > _threshold:
         return
     not_succ = 0
     for url, uuid in uuid_dict.items():
         if uuid is None:
-            if uuid not in error_url_dict.keys():
+            if depth == _threshold:
                 try:
-                    error_url_dict[file_index].append(url)
+                    error_url_dict[file_index].append((url, uuid))
                 except:
                     error_url_dict[file_index] = []
-                    error_url_dict[file_index].append(url)
+                    error_url_dict[file_index].append((url, uuid))
             continue
         if uuid == -1:
             continue
         was_succ = download_one_json(uuid, save_path + '/' + url + '.json')
         if was_succ is False:
-            try:
-                error_url_get[file_index].append(url)
-            except:
-                error_url_get[file_index] = []
-                error_url_get[file_index].append(url)
+            if depth == _threshold:
+                try:
+                    error_url_get[file_index].append((url, uuid))
+                except:
+                    error_url_get[file_index] = []
+                    error_url_get[file_index].append((url, uuid))
             not_succ += 1
         else:
             uuid_dict[url] = -1
-
     if not_succ != 0:
-        sleep(10)
-        download_stuff(uuid_dict, error_url_dict, save_path, depth + 1, file_index)
+        sleep(20)
+        download_stuff(uuid_dict, error_url_dict, error_url_get, save_path, depth + 1, file_index)
 
 
 def print_error_urls(error_url_dict: dict) -> None:
@@ -142,29 +181,31 @@ def check_folders(save_path: str, file_index: int):
     folder_name = '{:04d}'.format(file_index)
     save_path = save_path + '/' + folder_name
     if os.path.exists(save_path):
-        print('Error: This folder already exist {}'.format(folder_name))
+        print('Error: This folder already exist {}. Terminating.'.format(folder_name))
         sys.exit(1)
     else:
         os.makedirs(save_path)
     return save_path
 
 
-def post_urls(url_list: list, uuid_dict: dict, api_key: str) -> None:
+def post_urls(input_file_index, url_list: list, uuid_dict: dict, api_key: str) -> None:
     """Go though urls and make post request to urlscan."""
-    for url in url_list:
-        print('We are posting: {} '.format(url), end='')
+    url_list_len = len(url_list)
+    for i, url in enumerate(url_list):
+        print('{} - {}/{} We are posting: {} '.format(input_file_index, i, url_list_len, url), end='')
         uuid = ask_for_uuid(url, api_key)
         if uuid_dict.get(url, -1) == -1:
             uuid_dict[url] = uuid
         else:
             print('Error: Same urls. Clean your dataset and the do stuff. Exiting the script.')
             sys.exit(1)
-        sleep(2)
+        sleep(3)
 
 
-def main(index: int, file_index: int, path_to_labeled_file: str, save_path: str, api_key: str, error_url_post: dict,
+def main(file_index: int, path_to_labeled_file: str, save_path: str, api_key: str, error_url_post: dict,
          error_url_get: dict) -> None:
 
+    print('We are processing capture {}'.format(file_index))
     url_list = []
     uuid_dict = {}
 
@@ -173,32 +214,45 @@ def main(index: int, file_index: int, path_to_labeled_file: str, save_path: str,
     """Check if our folder already exists."""
     save_path = check_folders(save_path, file_index)
     """Post urls to urlscan."""
-    post_urls(url_list, uuid_dict, api_key)
+    post_urls(file_index, url_list, uuid_dict, api_key)
     """Wait some time for urlscan server."""
     sleep(10)
     """Download jsons, html from urlscan"""
     download_stuff(uuid_dict, error_url_post, error_url_get, save_path, 0, file_index)
 
 
-def write_errors(error_url_post: dict, error_url_get: dict) -> None:
-    with open('error_file.txt') as f:
-        f.write('# post errors\n')
+def write_errors(error_url_post: dict, error_url_get: dict, file_name: str) -> None:
+    print('#######################################################')
+    if len(error_url_post.keys()) != 0:
+        print('     << Error: Post requests are NOT ok. Look at the log files.')
         for key, item in error_url_post.items():
-            f.write('<<<' + str(key) + '\n')
-            for url in item:
-                f.write(url + '\n')
-        f.write('# get errors\n')
+            with open('error_file_post_' + str(key) + '.txt', 'w') as f:
+                f.write('# post errors\n')
+
+                f.write('<<< file name: ' + str(key) + '\n')
+                for url in item:
+                    f.write(str(url[0]) + ' ' + str(url[1]) + '\n')
+            f.close()
+    else:
+        print('     << Post requests are ok.')
+
+    if len(error_url_get.keys()) != 0:
+        print('     << Error: Get requests are NOT ok. Look at the log files.')
         for key, item in error_url_get.items():
-            f.write('<<<' + str(key) + '\n')
-            for url in item:
-                f.write(url + '\n')
-    f.close()
+            with open('error_file_get_' + str(key) + '.txt', 'w') as f:
+                f.write('# get errors\n')
+                f.write('<<< file name: ' + str(key) + '\n')
+                for url in item:
+                    f.write(str(url[0]) + ' ' + str(url[1]) + '\n')
+            f.close()
+    else:
+        print('     << Get requests are ok.')
 
 
 if __name__ == '__main__':
     print('Welcome in download manager for json by https://urlscan.io')
     print('First argument is API KEY.')
-    print('Second argument is path to FILE where urls are stored. If you want to process more files, put'
+    print('Second argument is path to FILE where labeled urls are stored. If you want to process more files, put'
           'integer to loop in the code.')
     print('Third argument is path to FOLDER where json files should be saved.')
     print('#########################################\n')
@@ -214,13 +268,14 @@ if __name__ == '__main__':
         path_to_input_folder = os.path.dirname(path_to_url_file)
         error_url_post = {}
         error_url_get = {}
+        # (file_index+1) mean only 1 input file inside the loop.
         for i in range(file_index, file_index + 1):
             new_name = path_to_input_folder + '/' + '{:04d}'.format(i) + '_html_labeled.txt'
-            main(i, file_index, new_name, save_path_to_folder, api_key, error_url_post, error_url_get)
+            main(i, new_name, save_path_to_folder, api_key, error_url_post, error_url_get)
 
         """Print non-successfully urls."""
         # print_error_urls(error_url_post)
-        write_errors(error_url_post, error_url_get)
+        write_errors(error_url_post, error_url_get, file_name)
     else:
         print('Error: Amount of arguments is wrong.')
 

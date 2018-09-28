@@ -1,8 +1,11 @@
 import random
 
-# from test_tool.temp_folder import temp_karel
+import sys
+sys.path.insert(0, '/home/frenky/PycharmProjects/url_detector/URL-detector/')
+from manager.json_decision import get_decision_from_json
 
-def get_decicion(url: str):
+
+def get_decision(url: str):
     """
     0 - url is normal
     1 - url is malicious
@@ -10,8 +13,13 @@ def get_decicion(url: str):
     :param url:
     :return:
     """
-    decision = random.randint(0, 2)
-    return decision
+    result = get_decision_from_json(url)
+    return result
 
 
-# temp_karel.print_func()
+
+if __name__ == '__main__':
+    # url = 'www.seznam.cz'
+    url = 'saloon26.ru'
+    res = get_decision(url)
+    print(res)
