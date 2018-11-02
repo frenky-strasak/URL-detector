@@ -15,17 +15,25 @@ body, html {height: 100%}
     background-size: cover;
     background-color: black;
 }
+
+.with-margin {
+  margin-bottom: 70px;
+}
 </style>
 <body>
 
 <div class="bgimg w3-display-container w3-animate-opacity w3-text-white">
   <div class="w3-display-topleft w3-padding-large w3-xlarge">
-      <div >
+        <div>
                <p>
                    <a href="https://www.civilsphereproject.org/"> <img src="/media/civilsphere.png" alt="Italian Trulli" width="5%" height="5%"> </a>
+                   <!--<figcaption>Fig.1 - Trulli, Puglia, Italy.</figcaption>-->
                </p>
                  </p>
                 <a href="http://aic.fel.cvut.cz/"> <img src="/media/aic-logo.png" alt="Italian Trulli" width="10%" height="10%"> </a>
+               </p>
+                  </p>
+                <a href="https://urlscan.io/"> <img src="/media/urlscan_256.png" alt="Italian Trulli" width="5%" height="5%"> </a>
                </p>
             </div>
   </div>
@@ -46,12 +54,12 @@ body, html {height: 100%}
             <h1 class="w3-jumbo w3-animate-top">{{url}}</h1>
             <h1 class="w3-jumbo w3-animate-top">is not valid url</h1>
             <style> .bgimg { background-color: grey;} </style>
-            <p>Check your url and try again!</p>
+            <p>This url does not exist.</p>
        {% elif decision == -1 %}
             <h1 class="w3-jumbo w3-animate-top">{{url}}</h1>
             <h1 class="w3-jumbo w3-animate-top">Error</h1>
             <style> .bgimg { background-color: grey;} </style>
-            <p>Sorry, something wrong happened. Try again.</p>
+            <p>We can not access server data. Wait few seconds and try again.</p>
       {% elif decision == 3 %}
             <h1 class="w3-jumbo w3-animate-top">{{url}}</h1>
             <h1 class="w3-jumbo w3-animate-top">No data available</h1>
@@ -61,22 +69,16 @@ body, html {height: 100%}
 
 
       <form action="/">
-          <button type="submit" class="w3-btn w3-dark-grey w3-round-xlarge w3-xxlarge" value="?">Next scan</button>
+          <button type="submit" class="w3-btn w3-dark-grey w3-round-xlarge w3-xxlarge with-margin" value="?">Next scan</button>
       </form>
 
-      <!--<h1 class="w3-jumbo w3-animate-top">Should i click or not?</h1>-->
+        {% if feed_back_done == 1 %}
+                <h1 >Thank you for the feedback!</h1>
+         {% endif %}
 
-      <!--<hr class="w3-border-grey" style="margin:auto;width:40%">-->
-      <!--<p class="w3-large w3-center">Should i click is URL detector web service based on Machine learning research.-->
-      <!--sdfsdfs odfko skoskd fo ksdof kpsod fkpo osdfsdf sdofsdf</p>-->
-
-      <!--<input class="w3-input" type="text" style="text-align:center;">-->
-      <!--<p></p>-->
-      <!--<form action="/">-->
-          <!--<button type="submit" class="w3-btn w3-dark-grey w3-round-xlarge w3-xxlarge" value="?url=karel">Scan</button>-->
-      <!--</form>-->
-      <!--<p class="w3-large w3-center">About</p>-->
   </div>
+
+
   <div class="w3-display-bottomleft w3-padding-large">
         Powered by <a href="https://www.w3schools.com/w3css/default.asp" target="_blank">w3.css</a>
     </div>
@@ -84,10 +86,62 @@ body, html {height: 100%}
         Authors: Frenky Střasák, Sebastian Garcia
     </div>
 
+     {% if feed_back_done == 0 %}
+     <div class="w3-display-bottommiddle w3-padding-large">
+
+
+                 {% if decision == 0 or decision == 1 %}
+
+                  <h5 >Give us feedback if you are sure. Is the classification correct?</h5>
+                  <div class="btn-group with-margin">
+                      <!--<h5 >Give us feedback if you are sure. Is the classification correct?</h5>-->
+                      {% if decision == 0 %}
+                      <p>
+                          <form onSubmit="return saveFeedback(1);" style="display:inline-block;">
+                             <button class="w3-btn w3-blue">Yes, I know this website is normal.</button>
+                          </form>
+                          <form onSubmit="return saveFeedback(0);" style="display:inline-block;">
+                             <button class="w3-btn w3-red">No, I know this website is malicious.</button>
+                          </form>
+                      </p>
+                      {% elif decision == 1 %}
+                      <p>
+                          <form onSubmit="return saveFeedback(1);" style="display:inline-block;">
+                             <button class="w3-btn w3-blue">Yes, I know this website is malicious.</button>
+                         </form>
+                          <form onSubmit="return saveFeedback(0);" style="display:inline-block;">
+                              <button class="w3-btn w3-red">No, I know this website is normal.</button>
+                          </form>
+                      </p>
+                      {% endif %}
+                  </div>
+                 {% endif %}
+
+     </div>
+     {% endif %}
+
+
     <div class="w3-display-bottommiddle w3-padding-large">
-       <p> version 1.0 - still in development stage</p>
+       <p> version 1.1 </p>
     </div>
+
+
 </div>
+
+
+
+    <script>
+
+        function saveFeedback(feedback){
+            var response = "{{url}}" + ":" + "{{decision}}" + ":" + feedback;
+            // var response = "ahojkarel";
+            console.log(window.location);
+            window.location = '/?feedback=' + response;
+            return false;
+        }
+
+    </script>
+
 
 </body>
 </html>

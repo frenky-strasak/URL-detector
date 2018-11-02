@@ -15,13 +15,21 @@ def get_feature_vector(path=None, json_data=None) -> tuple:
             json_data = json.load(f)
         f.close()
 
+    """
+    Empty json -> return false.
+    """
     try:
         message = json_data['message']
-        # if message is 'notdone':
         print('Empty json: {}'.format(message))
         return False, []
     except KeyError:
         pass
+
+    try:
+      if 'ERR_NAME_NOT_RESOLVED' in str(json_data['data']):
+          return False, []
+    except:
+        return False, []
 
     feature_list = []
     features = UrlJsonClass(json_data)

@@ -57,6 +57,7 @@ def post_to_url_scan(api_key: str, url: str) -> tuple:
                 print('sleeing in post 1 ')
                 sleep_time = random.uniform(0, 2) + 3
                 sleep(sleep_time)
+                lives += -1
         else:
             print('sleeing in post 2')
             lives += -1
@@ -64,6 +65,7 @@ def post_to_url_scan(api_key: str, url: str) -> tuple:
             sleep(sleep_time)
 
         if lives == 0:
+            # uid is '' some we return -1
             break
 
     return True, uuid
@@ -76,12 +78,13 @@ def get_json_data(urlscan_request: str):
         try:
             json = urlib_instant.read().decode('utf-8')
         except:
+            print('utf-8 is not ok.')
             try:
                 json = urlib_instant.read().decode("ISO-8859-1")
             except:
-                pass
+                print('iso-8859-1 is not ok.')
     except:
-        pass
+        print('basic request is not succ. :(')
     return json
 
 
@@ -119,14 +122,15 @@ def download_one_json(uuid: str) -> tuple:
 
 
 def download_json(uuid: str) -> tuple:
-    lives = 5
+    lives = 10
     while True:
         json_dict, succ_down = download_one_json(uuid)
+
         if succ_down:
             return True, json_dict
         else:
             print('sleeping in downloading')
-            sleep(3)
+            sleep(15)
             lives += -1
 
         if lives == 0:
@@ -141,9 +145,10 @@ def get_input_json(api_key: str, url: str):
     if uuid == '':
         return -1, None
 
-    sleep(2)
-
+    sleep(15)
+    print('uuid more: ' + uuid)
     succ, json_dict = download_json(uuid)
+
 
     if succ is False:
         return -1, None
@@ -152,16 +157,22 @@ def get_input_json(api_key: str, url: str):
 
 
 def get_decision_from_json(url: str) -> int:
-    api_key = ''
+    print('#################################### NEW REQUEST #####################')
+    api_key = 'ae511ed2-840b-44a1-adc6-103ffb69a040'
     succ, json_dict = get_input_json(api_key, url)
+    print(json_dict)
     if succ == 2 or succ == -1:
+        print(' << json is not ok. :(')
         return succ
 
-    print('computing features')
+    print('<< computing features')
     # print(json_dict)
     succ, sample_1 = get_feature_vector(json_data=json_dict)
     if succ is False:
-        return 3
+        print('<< features are not ok :(')
+        return 2
+
+    print(sample_1)
 
     path_to_model = '/home/frenky/PycharmProjects/url_detector/URL-detector/manager/xgboost_2018_09_28_11_18.sav'
     # path_to_model = '/home/frenky/PycharmProjects/url_detector/URL-detector/manager/random_forest_2018_09_28_11_40.sav'
@@ -169,4 +180,5 @@ def get_decision_from_json(url: str) -> int:
     result_1 = _xgboost_module.predict(np.array([sample_1]))
     print('resutlt for {} is : {}'.format(url, result_1[0]))
     # print(sample)
+    print('#################################### END REQUEST #####################')
     return int(result_1[0])
