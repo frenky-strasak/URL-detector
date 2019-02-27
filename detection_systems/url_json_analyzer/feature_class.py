@@ -4,7 +4,9 @@ from tld import get_tld
 from tld import get_fld
 
 import sys
-sys.path.insert(0, '/home/frenky/PycharmProjects/url_detector/URL-detector/')
+import os
+# sys.path.insert(0, '/home/frenky/PycharmProjects/url_detector/URL-detector/')
+sys.path.insert(0, '/'.join(os.getcwd().split('/')[:-2]) + '/')
 # from compute_json import ComputeJson
 from detection_systems.url_json_analyzer.compute_json import ComputeJson
 

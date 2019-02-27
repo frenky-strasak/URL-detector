@@ -3,8 +3,8 @@ import numpy as np
 """
 Import features from files to vectors. 
 """
-X_malware = np.load('malware_json_features_2.npy')
-X_normal = np.load('normal_json_features_2.npy')
+X_malware = np.load('malware_json_features.npy')
+X_normal = np.load('normal_json_features.npy')
 # X_normal = X_normal[:10258]
 
 print('malware shape {}'.format(X_malware.shape))

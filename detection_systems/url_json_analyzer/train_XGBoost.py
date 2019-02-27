@@ -3,9 +3,12 @@ import numpy as np
 """
 Import features from files to vectors. 
 """
-X_malware = np.load('malware_json_features_2.npy')
-X_normal = np.load('normal_json_features_2.npy')
-# X_normal = X_normal[:10258]
+# X_malware = np.load('raw_features_2/malware_json_features.npy')
+# X_normal = np.load('raw_features_2/normal_json_features.npy')
+
+X_malware = np.load('raw_features_2/malware_json_features.npy')
+X_normal = np.load('raw_features_2/normal_json_features.npy')
+# X_normal = X_normal[:10000]
 
 print('malware shape {}'.format(X_malware.shape))
 print('normal shape {}'.format(X_normal.shape))
@@ -19,12 +22,17 @@ y = np.array([1 for i in range(X_malware.shape[0])] + [0 for j in range(X_normal
 print('X shape {}'.format(X.shape))
 print('y shape {}'.format(y.shape))
 
+# X = np.nan_to_num(X)
+X = np.array(X, dtype=np.float32)
+X = np.nan_to_num(X)
+
 
 """
 Split data dor training and testing
 """
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+
 
 
 """
@@ -49,6 +57,9 @@ model = XGBClassifier(
     nthread=4,
     scale_pos_weight=1,
     seed=27)
+
+# from sklearn.ensemble import RandomForestClassifier
+# model = RandomForestClassifier(random_state=0)
 
 
 print('training ...')

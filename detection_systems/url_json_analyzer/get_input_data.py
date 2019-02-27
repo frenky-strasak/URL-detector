@@ -5,7 +5,8 @@ This script computes features for each sample
 
 import os
 import sys
-sys.path.insert(0, '/home/frenky/PycharmProjects/url_detector/URL-detector/')
+# sys.path.insert(0, '/home/frenky/PycharmProjects/url_detector/URL-detector/')
+sys.path.insert(0, '/'.join(os.getcwd().split('/')[:-2]) + '/')
 from detection_systems.url_json_analyzer import feature_vector
 import numpy as np
 
@@ -14,7 +15,7 @@ def get_data(path_to_malware: str, path_to_normal: str):
 
     """
     Malware computing of features
-        Empty jsons in normal: 140
+        Empty jsons in malware: 140
         All malware jsons: 10258
     """
     empty_json_malware = 0
@@ -32,9 +33,7 @@ def get_data(path_to_malware: str, path_to_normal: str):
             else:
                 empty_json_malware += 1
 
-    print('Empty jsons in normal: {}'.format(empty_json_malware))
-    print('All malware jsons: {}'.format(all_malware))
-    np.save('malware_json_features.npy', np.array(malware_list))
+
 
     """
     Normal computing of features
@@ -56,11 +55,15 @@ def get_data(path_to_malware: str, path_to_normal: str):
             else:
                 empty_json_normal += 1
 
+
+
+    print('Empty jsons in malware: {}'.format(empty_json_malware))
+    print('All malware jsons: {}'.format(all_malware))
+    np.save('malware_json_features.npy', np.array(malware_list))
+
     print('Empty jsons in normal: {}'.format(empty_json_normal))
     print('All normal jsons: {}'.format(all_normal))
     np.save('normal_json_features.npy', np.array(normal_list))
-
-
 
 
 

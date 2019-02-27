@@ -26,7 +26,12 @@ SECRET_KEY = 'ojjjjjjjjjjjjjjjjjjjjj'
 DEBUG = True
 
 
-ALLOWED_HOSTS = ['']
+ALLOWED_HOSTS = ['192.168.43.32']
+# ALLOWED_HOSTS = ['192.168.42.72']
+# ALLOWED_HOSTS = ['192.168.250.1']
+
+# ALLOWED_HOSTS = ['10.0.0.210']
+# ALLOWED_HOSTS = ['147.32.83.154']
 
 
 # Application definition

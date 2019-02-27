@@ -1,6 +1,8 @@
 
 import sys
-sys.path.insert(0, '/home/frenky/PycharmProjects/url_detector/URL-detector/')
+import os
+# sys.path.insert(0, '/home/frenky/PycharmProjects/url_detector/URL-detector/')
+sys.path.insert(0, '/'.join(os.getcwd().split('/')[:-1]) + '/')
 import random
 import requests
 import urllib.request
@@ -55,13 +57,15 @@ def post_to_url_scan(api_key: str, url: str) -> tuple:
                     return False, ''
             except:
                 print('sleeing in post 1 ')
-                sleep_time = random.uniform(0, 2) + 3
+                # sleep_time = random.uniform(0, 2) + 3
+                sleep_time = 2
                 sleep(sleep_time)
                 lives += -1
         else:
             print('sleeing in post 2')
             lives += -1
-            sleep_time = random.uniform(0, 2) + 3
+            # sleep_time = random.uniform(0, 2) + 3
+            sleep_time = 2
             sleep(sleep_time)
 
         if lives == 0:
@@ -116,6 +120,7 @@ def download_one_json(uuid: str) -> tuple:
         return None, False
     json_dict = json.loads(json_data)
     if data_ready(json_dict):
+        print('Data are ready.')
         return json_dict, True
     else:
         return None, False
@@ -130,25 +135,20 @@ def download_json(uuid: str) -> tuple:
             return True, json_dict
         else:
             print('sleeping in downloading')
-            sleep(15)
+            sleep(5)
             lives += -1
 
         if lives == 0:
             return False, None
 
 
-def get_input_json(api_key: str, url: str):
-    valid_url, uuid = post_to_url_scan(api_key, url)
-    if valid_url is False:
-        return 2, None
-
+def get_input_json(url: str, uuid: str):
     if uuid == '':
         return -1, None
 
-    sleep(15)
-    print('uuid more: ' + uuid)
+    sleep(30)
+    print('uuid: ' + uuid)
     succ, json_dict = download_json(uuid)
-
 
     if succ is False:
         return -1, None
@@ -156,11 +156,9 @@ def get_input_json(api_key: str, url: str):
     return 0, json_dict
 
 
-def get_decision_from_json(url: str) -> int:
-    print('#################################### NEW REQUEST #####################')
-    api_key = 'ae511ed2-840b-44a1-adc6-103ffb69a040'
-    succ, json_dict = get_input_json(api_key, url)
-    print(json_dict)
+def get_decision_from_json(url: str, uuid: str) -> int:
+    print('# NEW REQUEST #')
+    succ, json_dict = get_input_json(url, uuid)
     if succ == 2 or succ == -1:
         print(' << json is not ok. :(')
         return succ
@@ -172,9 +170,8 @@ def get_decision_from_json(url: str) -> int:
         print('<< features are not ok :(')
         return 2
 
-    print(sample_1)
-
-    path_to_model = '/home/frenky/PycharmProjects/url_detector/URL-detector/manager/xgboost_2018_09_28_11_18.sav'
+    # path_to_model = '/home/frenky/PycharmProjects/url_detector/URL-detector/manager/xgboost_2018_09_28_11_18.sav'
+    path_to_model = '/'.join(os.getcwd().split('/')[:-1]) + '/' + '/detection_systems/xgboost_2018_09_28_11_18.sav'
     # path_to_model = '/home/frenky/PycharmProjects/url_detector/URL-detector/manager/random_forest_2018_09_28_11_40.sav'
     _xgboost_module = pickle.load(open(path_to_model, "rb"))
     result_1 = _xgboost_module.predict(np.array([sample_1]))

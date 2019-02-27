@@ -86,7 +86,6 @@ body, html {height: 100%}
             <div>
                <p>
                    <a href="https://www.civilsphereproject.org/"> <img src="/media/civilsphere.png" alt="Italian Trulli" width="5%" height="5%"> </a>
-                   <!--<figcaption>Fig.1 - Trulli, Puglia, Italy.</figcaption>-->
                </p>
                  </p>
                 <a href="http://aic.fel.cvut.cz/"> <img src="/media/aic-logo.png" alt="Italian Trulli" width="10%" height="10%"> </a>
@@ -97,63 +96,19 @@ body, html {height: 100%}
             </div>
 
   </div>
-  <div id="main_div" class="w3-display-middle w3-center">
-      <h1 class="w3-jumbo w3-animate-top">Should I click or not?</h1>
 
-      <hr class="w3-border-grey" style="margin:auto;width:40%">
-      <p class="w3-large w3-center">
-         www.shouldiclick.org tells you if you should click or not in a link due to security concerns. We used security-based
-machine learning research to find if all the information and content of a webpage is safe to click.
-The output of this service is a recommendation for you whether you should click on this link or not.
-You should had received this link with the intention of clicking on it.
-      </p>
-
-      <p>Examples:</p>
-      <p>www.google.com, youtube.com, https://translate.google.cz/#cs/es/shouldiclick%3F</p>
-
-
-
-      <form onSubmit="return checkAnswer();">
-          <input id="url_answer" class="w3-input"  type="text" style="text-align:center;">
-          <p></p>
-
-            <button id="main_button" type="submit" class="w3-btn w3-dark-grey w3-round-xlarge w3-xxlarge" >Scan</button>
-       </form>
-  </div>
 
 
     <div id="loader" ></div>
 
 
-
-
-
     <script>
-
         function showPage() {
-            document.getElementById("loader").style.display = "none";
-        }
 
-        function setLoading() {
             document.getElementById("loader").style.display = "inline";
-            document.getElementById("main_div").style.display = "none";
+            window.setTimeout(function() { window.location.href = "{{url_to_request}}";}, {{remaining_time}});
+
         }
-
-        function checkAnswer(){
-            console.log("ahoj mileno");
-            setLoading();
-            var response = document.getElementById('url_answer').value;
-            if (response != ""){
-               //console.log(window.location);
-                window.location = '/?url=' + response;
-            }
-            else{
-                 window.location = ''
-            }
-
-            return false;
-        }
-
     </script>
 
 
