@@ -75,6 +75,7 @@ def submit_request(api_key: str, url: str):
     succ, uuid = post_to_url_scan(api_key, url)
     return succ, uuid
 
+
 def read_request_from_db() -> tuple:
     succ, res = select_min_request(path)
     return succ, res
@@ -96,12 +97,13 @@ def receive_signal(signum, stack):
 def read_api_key() -> str:
     try:
         with open('api_key.txt') as f:
-            api_key = f.readlines()
+            api_key_list = f.readlines()
         f.close()
     except:
         print('Error: Can not read API KEY for url scan.')
         raise IOError
-    return api_key[0]
+    api_key = api_key_list[0].rstrip()
+    return api_key
 
 
 def create_pid_file(pid: int):
@@ -151,7 +153,10 @@ def main():
                 """
                 print('This url {} is not valid. Saving to database.')
                 db_manager.add_row(path, url, host_ip, 2)
+                waiting_requests.pop()
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    x = read_api_key()
+    print(x)
